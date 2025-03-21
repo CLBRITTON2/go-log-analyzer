@@ -17,7 +17,7 @@ var destinationPattern = regexp.MustCompile(`to\s([\w/]+\.txt)`)
 func ParseLogFile(filePath string) ([]log.LogEntry, error) {
 	logFile, err := os.Open(filePath)
 	if err != nil {
-		fmt.Printf("ParseLogFile - Failed to open log file")
+		return nil, fmt.Errorf("Failed to open log file: %v", err)
 	}
 	defer logFile.Close()
 
@@ -52,19 +52,25 @@ func ParseLogFile(filePath string) ([]log.LogEntry, error) {
 		}
 
 		if !timeStamp.IsZero() && productId != "" && destination != "" {
-			logEntry := log.LogEntry{
-				Timestamp:   timeStamp,
+			productLogEntry := log.LogEntry{
+				TimeStamp:   timeStamp,
 				ProductId:   productId,
 				Destination: destination,
 			}
-			logEntries = append(logEntries, logEntry)
+			logEntries = append(logEntries, productLogEntry)
+		} else {
+			// Storing the full line for entries that aren't product related - these could be errors
+			// and need to be captured for reporting
+			genericLogEntry := log.LogEntry{
+				TimeStamp:       timeStamp,
+				CompleteLogLine: line,
+			}
+			logEntries = append(logEntries, genericLogEntry)
 		}
 	}
 
-	// If there's an error scanning don't return log entries return nil
 	if err := logScanner.Err(); err != nil {
-		fmt.Printf("ParseLogFile - Error while scanning log file")
-		return nil, err
+		return nil, fmt.Errorf("Error while scanning log file: %v", err)
 	}
 
 	return logEntries, nil

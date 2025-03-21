@@ -3,7 +3,8 @@ package log
 import "time"
 
 type LogEntry struct {
-	Timestamp   time.Time
-	ProductId   string
-	Destination string
+	TimeStamp       time.Time
+	ProductId       string
+	Destination     string
+	CompleteLogLine string
 }
