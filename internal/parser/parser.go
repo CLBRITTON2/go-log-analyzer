@@ -21,7 +21,7 @@ func ParseLogFile(filePath string) ([]log.LogEntry, error) {
 	}
 	defer logFile.Close()
 
-	var logEntries []log.LogEntry
+	logEntries := log.LogEntries{}
 
 	logScanner := bufio.NewScanner(logFile)
 	for logScanner.Scan() {
@@ -34,7 +34,7 @@ func ParseLogFile(filePath string) ([]log.LogEntry, error) {
 		if len(timeStampMatches) > 1 {
 			timeStamp, timeStampParsingError = time.Parse("2006-01-02 15:04:05", timeStampMatches[1])
 			if timeStampParsingError != nil {
-				// If theres no timestamp skip the line - this is not an error some lines just dont get stamped
+				// If theres no timestamp skip the line
 				continue
 			}
 		}
@@ -52,20 +52,11 @@ func ParseLogFile(filePath string) ([]log.LogEntry, error) {
 		}
 
 		if !timeStamp.IsZero() && productId != "" && destination != "" {
-			productLogEntry := log.LogEntry{
-				TimeStamp:   timeStamp,
-				ProductId:   productId,
-				Destination: destination,
-			}
-			logEntries = append(logEntries, productLogEntry)
+			logEntries.AddLogEntry(timeStamp, &productId, &destination, nil)
 		} else {
 			// Storing the full line for entries that aren't product related - these could be errors
 			// and need to be captured for reporting
-			genericLogEntry := log.LogEntry{
-				TimeStamp:       timeStamp,
-				CompleteLogLine: line,
-			}
-			logEntries = append(logEntries, genericLogEntry)
+			logEntries.AddLogEntry(timeStamp, nil, nil, &line)
 		}
 	}
 

@@ -20,9 +20,5 @@ func main() {
 		fmt.Printf("Error calling AnalyzeLogEntries: %v\n", analyzerErr)
 	}
 
-	fmt.Println("Log summary:")
-	fmt.Printf("Total Products Processed: %v\n", logReportData.TotalProductsProcessed)
-	fmt.Printf("Total Errors: %v\n", logReportData.ErrorCount)
-	fmt.Printf("Total Blocked Products: %v\n", logReportData.BlockedProductCount)
-	fmt.Printf("Total Submissions: %v\n", logReportData.SubmittedProductCount)
+	logReportData.PrintReportSummary()
 }
