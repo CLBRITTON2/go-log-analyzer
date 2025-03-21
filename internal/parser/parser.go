@@ -2,6 +2,7 @@ package parser
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"regexp"
 	"time"
@@ -9,20 +10,16 @@ import (
 	"github.com/CLBRITTON2/go-log-analyzer/internal/models/log"
 )
 
-func checkError(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
+var timestampPattern = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})`)
+var productIdPattern = regexp.MustCompile(`ASIN\s([0-9A-Z]{10})`)
+var destinationPattern = regexp.MustCompile(`to\s([\w/]+\.txt)`)
 
 func ParseLogFile(filePath string) ([]log.LogEntry, error) {
 	logFile, err := os.Open(filePath)
-	checkError(err)
+	if err != nil {
+		fmt.Printf("ParseLogFile - Failed to open log file")
+	}
 	defer logFile.Close()
-
-	timestampPattern := regexp.MustCompile(`^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})`)
-	productIdPattern := regexp.MustCompile(`ASIN\s([0-9A-Z]{10})`)
-	destinationPattern := regexp.MustCompile(`to\s([\w/]+\.txt)`)
 
 	var logEntries []log.LogEntry
 
@@ -66,6 +63,7 @@ func ParseLogFile(filePath string) ([]log.LogEntry, error) {
 
 	// If there's an error scanning don't return log entries return nil
 	if err := logScanner.Err(); err != nil {
+		fmt.Printf("ParseLogFile - Error while scanning log file")
 		return nil, err
 	}
 
