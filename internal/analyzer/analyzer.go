@@ -3,10 +3,10 @@ package analyzer
 import (
 	"strings"
 
-	"github.com/CLBRITTON2/go-log-analyzer/internal/models/log"
+	"github.com/CLBRITTON2/go-log-analyzer/internal/models/data"
 )
 
-func AnalyzeLogEntries(logEntries log.LogEntries) (log.ReportData, error) {
+func AnalyzeLogEntries(logEntries data.LogEntries) (data.ReportData, error) {
 	totalProductsProcessed, errorCount, blockedProductCount, submittedProductCount := 0, 0, 0, 0
 
 	for i := 0; i < len(logEntries); i++ {
@@ -26,7 +26,7 @@ func AnalyzeLogEntries(logEntries log.LogEntries) (log.ReportData, error) {
 		}
 	}
 
-	logReportData := log.ReportData{
+	logReportData := data.ReportData{
 		TotalProductsProcessed: totalProductsProcessed,
 		BlockedProductCount:    blockedProductCount,
 		SubmittedProductCount:  submittedProductCount,

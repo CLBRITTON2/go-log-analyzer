@@ -1,4 +1,4 @@
-package log
+package data
 
 import (
 	"os"
@@ -17,6 +17,6 @@ type ReportData struct {
 func (reportData ReportData) PrintReportSummary() {
 	table := table.New(os.Stdout)
 	table.AddRow(strconv.Itoa(reportData.TotalProductsProcessed), strconv.Itoa(reportData.BlockedProductCount), strconv.Itoa(reportData.SubmittedProductCount), strconv.Itoa(reportData.ErrorCount))
-	table.SetHeaders("Total Products Processed", "Blocked Products", "Submitted Products", "Errors")
+	table.SetHeaders("Total Products", "Blocked Products", "Submitted Products", "Errors")
 	table.Render()
 }

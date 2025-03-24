@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/CLBRITTON2/go-log-analyzer/internal/models/log"
+	"github.com/CLBRITTON2/go-log-analyzer/internal/models/data"
 )
 
 var timestampPattern = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})`)
@@ -15,14 +15,14 @@ var asinPattern = regexp.MustCompile(`ASIN\s([0-9A-Z]{10})`)
 var upcPattern = regexp.MustCompile(`UPC\s(\d+)`)
 var destinationPattern = regexp.MustCompile(`to\s([\w/]+\.txt|discord)`)
 
-func ParseLogFile(filePath string) ([]log.LogEntry, error) {
+func ParseLogFile(filePath string) ([]data.LogEntry, error) {
 	logFile, err := os.Open(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to open log file: %v", err)
 	}
 	defer logFile.Close()
 
-	logEntries := log.LogEntries{}
+	logEntries := data.LogEntries{}
 
 	logScanner := bufio.NewScanner(logFile)
 	for logScanner.Scan() {
