@@ -11,8 +11,9 @@ import (
 )
 
 var timestampPattern = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})`)
-var productIdPattern = regexp.MustCompile(`ASIN\s([0-9A-Z]{10})`)
-var destinationPattern = regexp.MustCompile(`to\s([\w/]+\.txt)`)
+var asinPattern = regexp.MustCompile(`ASIN\s([0-9A-Z]{10})`)
+var upcPattern = regexp.MustCompile(`UPC\s(\d+)`)
+var destinationPattern = regexp.MustCompile(`to\s([\w/]+\.txt|discord)`)
 
 func ParseLogFile(filePath string) ([]log.LogEntry, error) {
 	logFile, err := os.Open(filePath)
@@ -34,15 +35,21 @@ func ParseLogFile(filePath string) ([]log.LogEntry, error) {
 		if len(timeStampMatches) > 1 {
 			timeStamp, timeStampParsingError = time.Parse("2006-01-02 15:04:05", timeStampMatches[1])
 			if timeStampParsingError != nil {
-				// If theres no timestamp skip the line
 				continue
 			}
 		}
 
-		productIdMatch := productIdPattern.FindStringSubmatch(line)
+		// Check for Amazon products first
+		asinMatch := asinPattern.FindStringSubmatch(line)
 		var productId string
-		if len(productIdMatch) > 1 {
-			productId = productIdMatch[1]
+		if len(asinMatch) > 1 {
+			productId = asinMatch[1]
+		}
+
+		// Check for products that have a UPC - a product wont log a upc and ASIN so this is safe
+		upcMatch := upcPattern.FindStringSubmatch(line)
+		if len(upcMatch) > 1 {
+			productId = upcMatch[1]
 		}
 
 		destinationMatch := destinationPattern.FindStringSubmatch(line)
@@ -51,7 +58,7 @@ func ParseLogFile(filePath string) ([]log.LogEntry, error) {
 			destination = destinationMatch[1]
 		}
 
-		if !timeStamp.IsZero() && productId != "" && destination != "" {
+		if productId != "" && destination != "" {
 			logEntries.AddLogEntry(timeStamp, &productId, &destination, nil)
 		} else {
 			// Storing the full line for entries that aren't product related - these could be errors

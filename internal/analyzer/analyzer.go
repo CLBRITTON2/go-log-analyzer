@@ -7,14 +7,11 @@ import (
 )
 
 func AnalyzeLogEntries(logEntries log.LogEntries) (log.ReportData, error) {
-	totalProductsProcessed := 0
-	errorCount := 0
-	blockedProductCount := 0
-	submittedProductCount := 0
+	totalProductsProcessed, errorCount, blockedProductCount, submittedProductCount := 0, 0, 0, 0
 
 	for i := 0; i < len(logEntries); i++ {
 		// No destination or product ID represents a generic log entry for errors/init/etc
-		if logEntries[i].ProductId == nil && logEntries[i].Destination == nil {
+		if logEntries[i].ProductId == nil || logEntries[i].Destination == nil {
 			if strings.Contains(strings.ToLower(*logEntries[i].CompleteLogLine), strings.ToLower("error")) || strings.Contains(strings.ToLower(*logEntries[i].CompleteLogLine), strings.ToLower("failed")) {
 				errorCount++
 			}
@@ -23,7 +20,7 @@ func AnalyzeLogEntries(logEntries log.LogEntries) (log.ReportData, error) {
 			if strings.Contains(strings.ToLower(*logEntries[i].Destination), strings.ToLower("blocklist")) {
 				blockedProductCount++
 			}
-			if strings.Contains(strings.ToLower(*logEntries[i].Destination), strings.ToLower("senttodiscord")) {
+			if strings.Contains(strings.ToLower(*logEntries[i].Destination), strings.ToLower("discord")) {
 				submittedProductCount++
 			}
 		}

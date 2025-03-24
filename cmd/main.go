@@ -9,7 +9,7 @@ import (
 
 func main() {
 	// Just for testing at the moment
-	logFilePath := "../test/sample_logs/Core_20250319.log"
+	logFilePath := "../test/sample_logs/Core_20250323.log"
 	logEntries, parseErr := parser.ParseLogFile(logFilePath)
 	if parseErr != nil {
 		fmt.Printf("Error calling ParseLogFile: %v\n", parseErr)
