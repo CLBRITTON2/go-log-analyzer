@@ -9,16 +9,29 @@ import (
 
 func main() {
 	// Just for testing at the moment
-	logFilePath := "../test/sample_logs/Core_20250323.log"
-	logEntries, parseErr := parser.ParseLogFile(logFilePath)
-	if parseErr != nil {
-		fmt.Printf("Error calling ParseLogFile: %v\n", parseErr)
+	coreLogFilePath := "../test/sample_logs/Core_20250323.log"
+	coreLogEntries, coreParseErr := parser.ParseCoreLogFile(coreLogFilePath)
+	if coreParseErr != nil {
+		fmt.Printf("Error calling ParseCoreLogFile: %v\n", coreParseErr)
 	}
 
-	logReportData, analyzerErr := analyzer.AnalyzeLogEntries(logEntries)
+	coreReportData, analyzerErr := analyzer.AnalyzeCoreLogEntries(coreLogEntries)
 	if analyzerErr != nil {
-		fmt.Printf("Error calling AnalyzeLogEntries: %v\n", analyzerErr)
+		fmt.Printf("Error calling AnalyzeCoreLogEntries: %v\n", analyzerErr)
 	}
 
-	logReportData.PrintReportSummary()
+	appLogFilePath := "../test/sample_logs/ClothingScraper_20250323.log"
+	appLogEntries, appParseErr := parser.ParseAppLogFile(appLogFilePath)
+	if appParseErr != nil {
+		fmt.Printf("Error calling ParseAppLogFile: %v\n", appParseErr)
+	}
+
+	appReportData, analyzerErr := analyzer.AnalyzeAppLogEntries(appLogEntries)
+	if analyzerErr != nil {
+		fmt.Printf("Error calling AnalyzeAppLogEntries: %v\n", analyzerErr)
+	}
+
+	coreReportData.PrintCoreReportSummary()
+	appReportData.PrintAppReportSummary()
+
 }

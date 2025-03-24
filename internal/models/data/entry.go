@@ -2,21 +2,38 @@ package data
 
 import "time"
 
-type LogEntry struct {
+type CoreLogEntry struct {
 	TimeStamp       time.Time
 	ProductId       *string
 	Destination     *string
 	CompleteLogLine *string
 }
 
-type LogEntries []LogEntry
+type AppLogEntry struct {
+	ApplicationName string
+	CompletedCycles int
+	CycleDuration   float64
+}
 
-func (logEntries *LogEntries) AddLogEntry(timeStamp time.Time, productId *string, destination *string, completeLogLine *string) {
-	logEntry := LogEntry{
+type CoreLogEntries []CoreLogEntry
+
+type AppLogEntries []AppLogEntry
+
+func (coreLogEntries *CoreLogEntries) AddCoreLogEntry(timeStamp time.Time, productId *string, destination *string, completeLogLine *string) {
+	CoreLogEntry := CoreLogEntry{
 		TimeStamp:       timeStamp,
 		ProductId:       productId,
 		Destination:     destination,
 		CompleteLogLine: completeLogLine,
 	}
-	*logEntries = append(*logEntries, logEntry)
+	*coreLogEntries = append(*coreLogEntries, CoreLogEntry)
+}
+
+func (appLogEntries *AppLogEntries) AddAppLogEntry(applicationName string, completedCycles int, cycleDuration float64) {
+	appLogEntry := AppLogEntry{
+		ApplicationName: applicationName,
+		CompletedCycles: completedCycles,
+		CycleDuration:   cycleDuration,
+	}
+	*appLogEntries = append(*appLogEntries, appLogEntry)
 }
