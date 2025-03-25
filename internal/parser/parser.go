@@ -22,7 +22,7 @@ var durationPattern = regexp.MustCompile(`completed in (\d+\.\d+) seconds`)
 func ParseCoreLogFile(filePath string) (data.CoreLogEntries, error) {
 	coreLogFile, err := os.Open(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to open log file: %v", err)
+		panic(err)
 	}
 	defer coreLogFile.Close()
 
@@ -80,7 +80,7 @@ func ParseCoreLogFile(filePath string) (data.CoreLogEntries, error) {
 func ParseAppLogFile(filePath string) (data.AppLogEntries, error) {
 	appLogFile, err := os.Open(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to open log file: %v", err)
+		panic(err)
 	}
 	defer appLogFile.Close()
 

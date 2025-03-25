@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"io/fs"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -14,10 +15,16 @@ import (
 func main() {
 	flags := CreateCLIFlags()
 	flag.Parse()
-	logDirectory := "../test/sample_logs"
+	// For testing
+	// logDirectory := "../test/sample_logs"
+	executingPath, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	executingDirectory := filepath.Dir(executingPath)
 
 	if flags.ShowCoreLogSummary {
-		coreLogFile, findCoreLogErr := findCoreLogFile(logDirectory)
+		coreLogFile, findCoreLogErr := findCoreLogFile(executingDirectory)
 		if findCoreLogErr != nil {
 			fmt.Printf("Error calling findCoreLogFile: %v\n", findCoreLogErr)
 		}
@@ -47,7 +54,7 @@ func main() {
 	}
 
 	if flags.ShowAllAppLogSummary {
-		appLogFiles, findAppLogErr := findAppLogFiles(logDirectory)
+		appLogFiles, findAppLogErr := findAppLogFiles(executingDirectory)
 		if findAppLogErr != nil {
 			fmt.Printf("Error calling findAppLogFiles: %v\n", findAppLogErr)
 		}
