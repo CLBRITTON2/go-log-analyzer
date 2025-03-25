@@ -63,7 +63,7 @@ func AnalyzeAppLogEntries(appLogEntries data.AppLogEntries) (data.AppReportData,
 
 func CalculateAverageCycleDuration(cycleDurations []float64) float64 {
 	totalDuration := 0.0
-	for i := 0; i < len(cycleDurations); i++ {
+	for i := range cycleDurations {
 		totalDuration += cycleDurations[i]
 	}
 	return totalDuration / float64(len(cycleDurations))
