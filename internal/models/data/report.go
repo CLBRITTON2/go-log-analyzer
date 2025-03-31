@@ -35,9 +35,11 @@ func (reportData CoreReportData) PrintTotalProductsProcessed() {
 func (reportData CoreReportData) PrintBlockedProductCount() {
 	fmt.Printf("Core Blocked Product Count: %d\n", reportData.BlockedProductCount)
 }
+
 func (reportData CoreReportData) PrintSubmittedProductCount() {
 	fmt.Printf("Core Submitted Product Count: %d\n", reportData.SubmittedProductCount)
 }
+
 func (reportData CoreReportData) PrintErrorCount() {
 	fmt.Printf("Core Error Count: %d\n", reportData.ErrorCount)
 }

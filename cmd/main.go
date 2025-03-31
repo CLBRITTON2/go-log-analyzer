@@ -3,10 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/fs"
-	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/CLBRITTON2/go-log-analyzer/internal/analyzer"
 	"github.com/CLBRITTON2/go-log-analyzer/internal/parser"
@@ -16,15 +12,15 @@ func main() {
 	flags := CreateCLIFlags()
 	flag.Parse()
 	// For testing
-	// logDirectory := "../test/sample_logs"
-	executingPath, err := os.Executable()
-	if err != nil {
-		panic(err)
-	}
-	executingDirectory := filepath.Dir(executingPath)
+	logDirectory := "../test/sample_logs"
+	// executingPath, err := os.Executable()
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// executingDirectory := filepath.Dir(executingPath)
 
 	if flags.ShowCoreLogSummary {
-		coreLogFile, findCoreLogErr := findCoreLogFile(executingDirectory)
+		coreLogFile, findCoreLogErr := parser.FindCoreLogFile(logDirectory)
 		if findCoreLogErr != nil {
 			fmt.Printf("Error calling findCoreLogFile: %v\n", findCoreLogErr)
 		}
@@ -54,7 +50,7 @@ func main() {
 	}
 
 	if flags.ShowAllAppLogSummary {
-		appLogFiles, findAppLogErr := findAppLogFiles(executingDirectory)
+		appLogFiles, findAppLogErr := parser.FindAppLogFiles(logDirectory)
 		if findAppLogErr != nil {
 			fmt.Printf("Error calling findAppLogFiles: %v\n", findAppLogErr)
 		}
@@ -73,52 +69,4 @@ func main() {
 			appReportData.PrintAppReportSummary()
 		}
 	}
-}
-
-func findCoreLogFile(rootDirectory string) (string, error) {
-	var coreLogFilePath string
-
-	err := filepath.WalkDir(rootDirectory, func(path string, directory fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if strings.Contains(strings.ToLower(directory.Name()), "core") && strings.HasSuffix(directory.Name(), ".log") {
-			coreLogFilePath = path
-			return fs.SkipDir
-		}
-		return nil
-	})
-
-	if err != nil {
-		return "", fmt.Errorf("error walking directory: %w", err)
-	}
-
-	if coreLogFilePath == "" {
-		return "", fmt.Errorf("no core log file found")
-	}
-
-	return coreLogFilePath, nil
-}
-
-func findAppLogFiles(rootDirectory string) ([]string, error) {
-	var appLogFilePaths []string
-	err := filepath.WalkDir(rootDirectory, func(path string, directory fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if strings.Contains(strings.ToLower(directory.Name()), "scraper") && strings.HasSuffix(directory.Name(), ".log") {
-			appLogFilePaths = append(appLogFilePaths, path)
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, fmt.Errorf("Error walking through directory: %v\n", err)
-	}
-	if len(appLogFilePaths) == 0 {
-		return nil, fmt.Errorf("No app log files found")
-	}
-
-	return appLogFilePaths, nil
 }

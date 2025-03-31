@@ -3,6 +3,7 @@ package parser
 import (
 	"bufio"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -13,11 +14,13 @@ import (
 	"github.com/CLBRITTON2/go-log-analyzer/internal/models/data"
 )
 
-var timestampPattern = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})`)
-var asinPattern = regexp.MustCompile(`ASIN\s([0-9A-Z]{10})`)
-var upcPattern = regexp.MustCompile(`UPC\s(\d+)`)
-var destinationPattern = regexp.MustCompile(`to\s([\w/]+\.txt|discord)`)
-var durationPattern = regexp.MustCompile(`completed in (\d+\.\d+) seconds`)
+var (
+	timestampPattern   = regexp.MustCompile(`^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})`)
+	asinPattern        = regexp.MustCompile(`ASIN\s([0-9A-Z]{10})`)
+	upcPattern         = regexp.MustCompile(`UPC\s(\d+)`)
+	destinationPattern = regexp.MustCompile(`to\s([\w/]+\.txt|discord)`)
+	durationPattern    = regexp.MustCompile(`completed in (\d+\.\d+) seconds`)
+)
 
 func ParseCoreLogFile(filePath string) (data.CoreLogEntries, error) {
 	coreLogFile, err := os.Open(filePath)
@@ -71,7 +74,7 @@ func ParseCoreLogFile(filePath string) (data.CoreLogEntries, error) {
 	}
 
 	if err := coreLogScanner.Err(); err != nil {
-		return nil, fmt.Errorf("Error while scanning log file: %v", err)
+		return nil, fmt.Errorf("error while scanning log file: %v", err)
 	}
 
 	return coreLogEntries, nil
@@ -113,7 +116,7 @@ func ParseAppLogFile(filePath string) (data.AppLogEntries, error) {
 		if len(cycleDurationMatches) > 1 {
 			cycleDuration, err = strconv.ParseFloat(cycleDurationMatches[1], 64)
 			if err != nil {
-				return nil, fmt.Errorf("Failed to parse cycle duration: %v", err)
+				return nil, fmt.Errorf("failed to parse cycle duration: %v", err)
 			}
 		}
 
@@ -123,8 +126,55 @@ func ParseAppLogFile(filePath string) (data.AppLogEntries, error) {
 	}
 
 	if err := appLogScanner.Err(); err != nil {
-		return nil, fmt.Errorf("Error while scanning log file: %v", err)
+		return nil, fmt.Errorf("error while scanning log file: %v", err)
 	}
 
 	return appLogEntries, nil
+}
+
+func FindCoreLogFile(rootDirectory string) (string, error) {
+	var coreLogFilePath string
+
+	err := filepath.WalkDir(rootDirectory, func(path string, directory fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if strings.Contains(strings.ToLower(directory.Name()), "core") && strings.HasSuffix(directory.Name(), ".log") {
+			coreLogFilePath = path
+			return fs.SkipDir
+		}
+		return nil
+	})
+	if err != nil {
+		return "", fmt.Errorf("error walking directory: %w", err)
+	}
+
+	if coreLogFilePath == "" {
+		return "", fmt.Errorf("no core log file found")
+	}
+
+	return coreLogFilePath, nil
+}
+
+func FindAppLogFiles(rootDirectory string) ([]string, error) {
+	var appLogFilePaths []string
+	err := filepath.WalkDir(rootDirectory, func(path string, directory fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if strings.Contains(strings.ToLower(directory.Name()), "scraper") && strings.HasSuffix(directory.Name(), ".log") {
+			appLogFilePaths = append(appLogFilePaths, path)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error walking through directory: %v", err)
+	}
+	if len(appLogFilePaths) == 0 {
+		return nil, fmt.Errorf("no app log files found")
+	}
+
+	return appLogFilePaths, nil
 }
